@@ -28,9 +28,16 @@ class HelloJobConfiguration(
     fun helloStep1(): Step {
         return StepBuilder("helloStep1", jobRepository)
             .tasklet({ contribution, chunkContext ->
-                println(" ============================")
-                println(" >> Hello Spring Batch")
-                println(" ============================")
+
+                val jobParameters = contribution.stepExecution.jobExecution.jobParameters
+                jobParameters.getString("name")
+                jobParameters.getLong("seq")
+                jobParameters.getDate("date")
+                jobParameters.getDouble("age")
+
+                val jobParameters1 = chunkContext.stepContext.jobParameters
+
+                println("Step1 has executed")
                 RepeatStatus.FINISHED
             }, transactionManager)
             .build()
@@ -40,9 +47,7 @@ class HelloJobConfiguration(
     fun helloStep2(): Step {
         return StepBuilder("helloStep1", jobRepository)
             .tasklet({ contribution, chunkContext ->
-                println(" ============================")
-                println(" >> Step2 has executed")
-                println(" ============================")
+                println("Step2 has executed")
                 RepeatStatus.FINISHED
             }, transactionManager)
             .build()
