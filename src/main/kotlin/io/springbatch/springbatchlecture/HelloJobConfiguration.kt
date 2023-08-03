@@ -1,5 +1,6 @@
 package io.springbatch.springbatchlecture
 
+import io.springbatch.springbatchlecture.repository.JobRepositoryListener
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet1
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet2
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet3
@@ -22,6 +23,8 @@ class HelloJobConfiguration(
     private val executionContextTasklet2: ExecutionContextTasklet2,
     private val executionContextTasklet3: ExecutionContextTasklet3,
     private val executionContextTasklet4: ExecutionContextTasklet4,
+
+    private val jobRepositoryListener: JobRepositoryListener,
 ) {
 
     @Bean
@@ -31,6 +34,7 @@ class HelloJobConfiguration(
             .next(step2())
             .next(step3())
             .next(step4())
+            .listener(jobRepositoryListener)
             .build()
     }
 

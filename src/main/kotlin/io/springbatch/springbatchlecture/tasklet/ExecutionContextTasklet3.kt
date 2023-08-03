@@ -14,7 +14,7 @@ class ExecutionContextTasklet3 : Tasklet {
 
         if (name == null) {
             chunkContext.stepContext.stepExecution.jobExecution.executionContext.putString("name", "user1")
-            throw RuntimeException("step has failed")
+//            throw RuntimeException("step has failed")
         }
 
         return RepeatStatus.FINISHED
