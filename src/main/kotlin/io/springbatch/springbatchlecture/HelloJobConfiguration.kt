@@ -21,6 +21,7 @@ class HelloJobConfiguration(
         return JobBuilder("job", jobRepository)
             .start(helloStep1())
             .next(helloStep2())
+            .next(helloStep3())
             .build()
     }
 
@@ -36,12 +37,22 @@ class HelloJobConfiguration(
 
     @Bean
     fun helloStep2(): Step {
-        return StepBuilder("helloStep1", jobRepository)
+        return StepBuilder("helloStep2", jobRepository)
             .tasklet({ contribution, chunkContext ->
                 println("Step2 has executed")
 
-                throw RuntimeException("Step2 has failed")
+//                throw RuntimeException("Step2 has failed")
 
+                RepeatStatus.FINISHED
+            }, transactionManager)
+            .build()
+    }
+
+    @Bean
+    fun helloStep3(): Step {
+        return StepBuilder("helloStep3", jobRepository)
+            .tasklet({ contribution, chunkContext ->
+                println("Step3 has executed")
                 RepeatStatus.FINISHED
             }, transactionManager)
             .build()
