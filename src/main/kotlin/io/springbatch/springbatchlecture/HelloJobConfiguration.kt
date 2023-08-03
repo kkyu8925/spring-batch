@@ -1,11 +1,14 @@
 package io.springbatch.springbatchlecture
 
+import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet1
+import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet2
+import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet3
+import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet4
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
-import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -13,48 +16,49 @@ import org.springframework.transaction.PlatformTransactionManager
 @Configuration
 class HelloJobConfiguration(
     private val jobRepository: JobRepository,
-    private val transactionManager: PlatformTransactionManager
+    private val transactionManager: PlatformTransactionManager,
+
+    private val executionContextTasklet1: ExecutionContextTasklet1,
+    private val executionContextTasklet2: ExecutionContextTasklet2,
+    private val executionContextTasklet3: ExecutionContextTasklet3,
+    private val executionContextTasklet4: ExecutionContextTasklet4,
 ) {
 
     @Bean
     fun job(): Job {
         return JobBuilder("job", jobRepository)
-            .start(helloStep1())
-            .next(helloStep2())
-            .next(helloStep3())
+            .start(step1())
+            .next(step2())
+            .next(step3())
+            .next(step4())
             .build()
     }
 
     @Bean
-    fun helloStep1(): Step {
-        return StepBuilder("helloStep1", jobRepository)
-            .tasklet({ contribution, chunkContext ->
-                println("Step1 has executed")
-                RepeatStatus.FINISHED
-            }, transactionManager)
+    fun step1(): Step {
+        return StepBuilder("step1", jobRepository)
+            .tasklet(executionContextTasklet1, transactionManager)
             .build()
     }
 
     @Bean
-    fun helloStep2(): Step {
-        return StepBuilder("helloStep2", jobRepository)
-            .tasklet({ contribution, chunkContext ->
-                println("Step2 has executed")
-
-//                throw RuntimeException("Step2 has failed")
-
-                RepeatStatus.FINISHED
-            }, transactionManager)
+    fun step2(): Step {
+        return StepBuilder("step2", jobRepository)
+            .tasklet(executionContextTasklet2, transactionManager)
             .build()
     }
 
     @Bean
-    fun helloStep3(): Step {
-        return StepBuilder("helloStep3", jobRepository)
-            .tasklet({ contribution, chunkContext ->
-                println("Step3 has executed")
-                RepeatStatus.FINISHED
-            }, transactionManager)
+    fun step3(): Step {
+        return StepBuilder("step3", jobRepository)
+            .tasklet(executionContextTasklet3, transactionManager)
+            .build()
+    }
+
+    @Bean
+    fun step4(): Step {
+        return StepBuilder("step4", jobRepository)
+            .tasklet(executionContextTasklet4, transactionManager)
             .build()
     }
 }
