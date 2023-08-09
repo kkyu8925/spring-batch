@@ -7,23 +7,34 @@ import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet3
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet4
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
+import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration
 import org.springframework.batch.core.job.builder.JobBuilder
+import org.springframework.batch.core.launch.JobLauncher
+import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher
 import org.springframework.batch.core.repository.ExecutionContextSerializer
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.repository.dao.Jackson2ExecutionContextStringSerializer
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.task.SimpleAsyncTaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
-@EnableBatchProcessing(executionContextSerializerRef = "executionContextSerializer")
-class ExecutionContextSerializerConfig {
+class ExecutionContextSerializerConfig: DefaultBatchConfiguration() {
 
     @Bean
-    fun executionContextSerializer(): ExecutionContextSerializer {
+    override fun getExecutionContextSerializer(): ExecutionContextSerializer {
         return Jackson2ExecutionContextStringSerializer()
+    }
+
+    @Bean
+    override fun jobLauncher(): JobLauncher {
+        val jobLauncher = TaskExecutorJobLauncher()
+        jobLauncher.setJobRepository(jobRepository())
+        jobLauncher.setTaskExecutor(SimpleAsyncTaskExecutor())
+        jobLauncher.afterPropertiesSet()
+        return jobLauncher
     }
 }
 
