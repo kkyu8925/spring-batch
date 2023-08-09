@@ -7,12 +7,25 @@ import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet3
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet4
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing
 import org.springframework.batch.core.job.builder.JobBuilder
+import org.springframework.batch.core.repository.ExecutionContextSerializer
 import org.springframework.batch.core.repository.JobRepository
+import org.springframework.batch.core.repository.dao.Jackson2ExecutionContextStringSerializer
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
+
+@Configuration
+@EnableBatchProcessing(executionContextSerializerRef = "executionContextSerializer")
+class ExecutionContextSerializerConfig {
+
+    @Bean
+    fun executionContextSerializer(): ExecutionContextSerializer {
+        return Jackson2ExecutionContextStringSerializer()
+    }
+}
 
 @Configuration
 class HelloJobConfiguration(
@@ -26,7 +39,6 @@ class HelloJobConfiguration(
 
     private val jobRepositoryListener: JobRepositoryListener,
 ) {
-
     @Bean
     fun job(): Job {
         return JobBuilder("job", jobRepository)
