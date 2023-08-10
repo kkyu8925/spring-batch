@@ -20,8 +20,8 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.SimpleAsyncTaskExecutor
 import org.springframework.transaction.PlatformTransactionManager
 
-@Configuration
-class ExecutionContextSerializerConfig: DefaultBatchConfiguration() {
+//@Configuration
+class ExecutionContextSerializerConfig : DefaultBatchConfiguration() {
 
     @Bean
     override fun getExecutionContextSerializer(): ExecutionContextSerializer {
@@ -50,9 +50,10 @@ class HelloJobConfiguration(
 
     private val jobRepositoryListener: JobRepositoryListener,
 ) {
+
     @Bean
     fun job(): Job {
-        return JobBuilder("job", jobRepository)
+        return JobBuilder("batchJob1", jobRepository)
             .start(step1())
             .next(step2())
             .next(step3())

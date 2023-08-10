@@ -9,4 +9,5 @@ spring:
     jdbc:
       initialize-schema: always
     job:
-      enabled: false
+      name: ${job.name:NONE}
+      enabled: true

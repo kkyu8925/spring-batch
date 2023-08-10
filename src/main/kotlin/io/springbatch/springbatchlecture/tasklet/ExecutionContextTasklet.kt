@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component
 class ExecutionContextTasklet1 : Tasklet {
 
     override fun execute(contribution: StepContribution, chunkContext: ChunkContext): RepeatStatus {
-        Thread.sleep(10000)
-
         val jobExecutionContext = chunkContext.stepContext.stepExecution.jobExecution.executionContext
         val stepExecutionContext = chunkContext.stepContext.stepExecution.executionContext
 
