@@ -4,9 +4,7 @@ import org.springframework.batch.core.JobExecution
 import org.springframework.batch.core.JobExecutionListener
 import org.springframework.batch.core.JobParametersBuilder
 import org.springframework.batch.core.repository.JobRepository
-import org.springframework.stereotype.Component
 
-@Component
 class JobRepositoryListener(
     private val jobRepository: JobRepository
 ) : JobExecutionListener {

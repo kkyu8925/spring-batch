@@ -47,8 +47,6 @@ class HelloJobConfiguration(
     private val executionContextTasklet2: ExecutionContextTasklet2,
     private val executionContextTasklet3: ExecutionContextTasklet3,
     private val executionContextTasklet4: ExecutionContextTasklet4,
-
-    private val jobRepositoryListener: JobRepositoryListener,
 ) {
 
     @Bean
@@ -58,7 +56,7 @@ class HelloJobConfiguration(
             .next(step2())
             .next(step3())
             .next(step4())
-            .listener(jobRepositoryListener)
+            .listener(JobRepositoryListener(jobRepository))
             .build()
     }
 
