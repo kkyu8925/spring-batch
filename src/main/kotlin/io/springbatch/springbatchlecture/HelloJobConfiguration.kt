@@ -5,6 +5,7 @@ import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet1
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet2
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet3
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet4
+import io.springbatch.springbatchlecture.validator.CustomJobParametersValidator
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration
@@ -56,6 +57,7 @@ class HelloJobConfiguration(
             .next(step2())
             .next(step3())
             .next(step4())
+            .validator(CustomJobParametersValidator())
             .listener(JobRepositoryListener(jobRepository))
             .build()
     }

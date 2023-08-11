@@ -10,4 +10,4 @@ spring:
       initialize-schema: always
     job:
       name: ${job.name:NONE}
-      enabled: true
+      enabled: false
