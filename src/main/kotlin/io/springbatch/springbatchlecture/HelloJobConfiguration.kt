@@ -1,11 +1,9 @@
 package io.springbatch.springbatchlecture
 
-import io.springbatch.springbatchlecture.repository.JobRepositoryListener
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet1
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet2
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet3
 import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet4
-import io.springbatch.springbatchlecture.validator.CustomJobParametersValidator
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.configuration.support.DefaultBatchConfiguration
@@ -16,6 +14,7 @@ import org.springframework.batch.core.repository.ExecutionContextSerializer
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.repository.dao.Jackson2ExecutionContextStringSerializer
 import org.springframework.batch.core.step.builder.StepBuilder
+import org.springframework.batch.item.support.ListItemReader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.SimpleAsyncTaskExecutor
@@ -53,12 +52,12 @@ class HelloJobConfiguration(
     @Bean
     fun job(): Job {
         return JobBuilder("batchJob1", jobRepository)
-            .start(step1())
-            .next(step2())
-            .next(step3())
-            .next(step4())
-            .validator(CustomJobParametersValidator())
-            .listener(JobRepositoryListener(jobRepository))
+            .start(chunkStep())
+//            .next(step2())
+//            .next(step3())
+//            .next(step4())
+//            .validator(CustomJobParametersValidator())
+//            .listener(JobRepositoryListener(jobRepository))
             .build()
     }
 
@@ -87,6 +86,16 @@ class HelloJobConfiguration(
     fun step4(): Step {
         return StepBuilder("step4", jobRepository)
             .tasklet(executionContextTasklet4, transactionManager)
+            .build()
+    }
+
+    @Bean
+    fun chunkStep(): Step {
+        return StepBuilder("chunkStep", jobRepository)
+            .chunk<String, String>(10, transactionManager)
+            .reader(ListItemReader(listOf("item1, item2, item3")))
+            .processor { it.uppercase() }
+            .writer { it.forEach { item -> println(item) } }
             .build()
     }
 }
