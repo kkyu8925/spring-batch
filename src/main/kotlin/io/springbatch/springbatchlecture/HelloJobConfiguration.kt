@@ -38,7 +38,7 @@ class ExecutionContextSerializerConfig : DefaultBatchConfiguration() {
     }
 }
 
-@Configuration
+//@Configuration
 class HelloJobConfiguration(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
