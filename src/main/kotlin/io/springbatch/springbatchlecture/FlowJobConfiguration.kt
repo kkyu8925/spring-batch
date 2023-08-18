@@ -1,12 +1,10 @@
 package io.springbatch.springbatchlecture
 
-import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet1
-import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet2
-import io.springbatch.springbatchlecture.tasklet.ExecutionContextTasklet3
+import io.springbatch.springbatchlecture.decider.CustomDecider
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
 import org.springframework.batch.core.job.builder.JobBuilder
-import org.springframework.batch.core.job.flow.FlowExecutionStatus
+import org.springframework.batch.core.job.flow.JobExecutionDecider
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.repeat.RepeatStatus
@@ -18,68 +16,49 @@ import org.springframework.transaction.PlatformTransactionManager
 class FlowJobConfiguration(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
-
-    private val executionContextTasklet1: ExecutionContextTasklet1,
-    private val executionContextTasklet2: ExecutionContextTasklet2,
-    private val executionContextTasklet3: ExecutionContextTasklet3,
 ) {
 
     @Bean
     fun job(): Job {
         return JobBuilder("batchJob", jobRepository)
-            .start(step1())
-                .on(FlowExecutionStatus.FAILED.name)
-                .to(step2())
-                .on(FlowExecutionStatus.FAILED.name)
-                .stop()
-            .from(step1())
-                .on("*")
-                .to(step3())
-                .next(step4())
-            .from(step2())
-                .on("*")
-                .to(step5())
-                .end()
-            .build()
-    }
-
-
-    @Bean
-    fun step1(): Step {
-        return StepBuilder("step1", jobRepository)
-            .tasklet(executionContextTasklet1, transactionManager)
+            .start(startStep())
+            .next(decider())
+            .from(decider()).on("ODD").to(oddStep())
+            .from(decider()).on("EVEN").to(evenStep())
+            .end()
             .build()
     }
 
     @Bean
-    fun step2(): Step {
-        return StepBuilder("step2", jobRepository)
-            .tasklet(executionContextTasklet2, transactionManager)
-            .build()
+    fun decider(): JobExecutionDecider {
+        return CustomDecider()
     }
 
     @Bean
-    fun step3(): Step {
-        return StepBuilder("step3", jobRepository)
-            .tasklet(executionContextTasklet3, transactionManager)
-            .build()
-    }
-
-    @Bean
-    fun step4(): Step {
-        return StepBuilder("step4", jobRepository)
+    fun startStep(): Step {
+        return StepBuilder("startStep", jobRepository)
             .tasklet({ contribution, chunkContext ->
-                println("step4")
+                println("startStep")
                 RepeatStatus.FINISHED
             }, transactionManager)
             .build()
     }
 
     @Bean
-    fun step5(): Step {
-        return StepBuilder("step5", jobRepository)
+    fun evenStep(): Step {
+        return StepBuilder("evenStep", jobRepository)
             .tasklet({ contribution, chunkContext ->
-                println("step5")
+                println("evenStep")
+                RepeatStatus.FINISHED
+            }, transactionManager)
+            .build()
+    }
+
+    @Bean
+    fun oddStep(): Step {
+        return StepBuilder("oddStep", jobRepository)
+            .tasklet({ contribution, chunkContext ->
+                println("oddStep")
                 RepeatStatus.FINISHED
             }, transactionManager)
             .build()
