@@ -9,6 +9,7 @@ import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.job.flow.FlowExecutionStatus
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
+import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
@@ -27,12 +28,18 @@ class FlowJobConfiguration(
     fun job(): Job {
         return JobBuilder("batchJob", jobRepository)
             .start(step1())
-            .on(FlowExecutionStatus.COMPLETED.name)
-            .to(step3())
+                .on(FlowExecutionStatus.COMPLETED.name)
+                .to(step2())
+                .on(FlowExecutionStatus.COMPLETED.name)
+                .stop()
             .from(step1())
-            .on(FlowExecutionStatus.FAILED.name)
-            .to(step2())
-            .end()
+                .on("*")
+                .to(step3())
+                .next(step4())
+            .from(step2())
+                .on("*")
+                .to(step5())
+                .end()
             .build()
     }
 
@@ -55,6 +62,26 @@ class FlowJobConfiguration(
     fun step3(): Step {
         return StepBuilder("step3", jobRepository)
             .tasklet(executionContextTasklet3, transactionManager)
+            .build()
+    }
+
+    @Bean
+    fun step4(): Step {
+        return StepBuilder("step4", jobRepository)
+            .tasklet({ contribution, chunkContext ->
+                println("step4")
+                RepeatStatus.FINISHED
+            }, transactionManager)
+            .build()
+    }
+
+    @Bean
+    fun step5(): Step {
+        return StepBuilder("step5", jobRepository)
+            .tasklet({ contribution, chunkContext ->
+                println("step5")
+                RepeatStatus.FINISHED
+            }, transactionManager)
             .build()
     }
 }
