@@ -28,9 +28,9 @@ class FlowJobConfiguration(
     fun job(): Job {
         return JobBuilder("batchJob", jobRepository)
             .start(step1())
-                .on(FlowExecutionStatus.COMPLETED.name)
+                .on(FlowExecutionStatus.FAILED.name)
                 .to(step2())
-                .on(FlowExecutionStatus.COMPLETED.name)
+                .on(FlowExecutionStatus.FAILED.name)
                 .stop()
             .from(step1())
                 .on("*")
