@@ -34,7 +34,9 @@ class ChunkOrientedTaskletConfiguration(
             .reader(ListItemReader(mutableListOf("item1", "item2", "item3", "item4", "item5", "item6")))
             .processor { "my_$it" }
             .writer {
-                println(it)
+                it.items.forEach { item ->
+                    println(item)
+                }
             }
             .build()
     }
