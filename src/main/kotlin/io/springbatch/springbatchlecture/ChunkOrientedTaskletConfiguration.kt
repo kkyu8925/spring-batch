@@ -2,19 +2,18 @@ package io.springbatch.springbatchlecture
 
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
-import org.springframework.batch.item.ItemProcessor
-import org.springframework.batch.item.ItemReader
-import org.springframework.batch.item.ItemWriter
 import org.springframework.batch.item.support.ListItemReader
+import org.springframework.batch.repeat.RepeatStatus
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
 
-//@Configuration
-class ChunkConfiguration(
+@Configuration
+class ChunkOrientedTaskletConfiguration(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
 ) {
@@ -23,37 +22,30 @@ class ChunkConfiguration(
     fun job(): Job {
         return JobBuilder("batchJob", jobRepository)
             .start(step1())
+            .next(step2())
             .build()
     }
 
     @Bean
+    @JobScope
     fun step1(): Step {
         return StepBuilder("step1", jobRepository)
-            .chunk<String, String>(1, transactionManager)
-            .reader(reader())
-            .processor(processor())
-            .writer(writer())
+            .chunk<String, String>(3, transactionManager)
+            .reader(ListItemReader(mutableListOf("item1", "item2", "item3", "item4", "item5", "item6")))
+            .processor { "my_$it" }
+            .writer {
+                println(it)
+            }
             .build()
     }
 
     @Bean
-    fun reader(): ItemReader<String> {
-        return ListItemReader(listOf("1", "2", "3", "4", "5"))
-    }
-
-    @Bean
-    fun processor(): ItemProcessor<String, String> {
-        return ItemProcessor<String, String> {
-            Thread.sleep(300)
-            println("processor : $it")
-            "my_$it";
-        }
-    }
-
-    @Bean
-    fun writer(): ItemWriter<String> {
-        return ItemWriter<String> {
-            println("writer: $it")
-        }
+    fun step2(): Step {
+        return StepBuilder("step2", jobRepository)
+            .tasklet({ contribution, chunkContext ->
+                println("step2 has executed")
+                RepeatStatus.FINISHED
+            }, transactionManager)
+            .build()
     }
 }
