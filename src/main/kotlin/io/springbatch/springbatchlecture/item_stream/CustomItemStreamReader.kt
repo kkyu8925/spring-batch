@@ -40,6 +40,6 @@ class CustomItemStreamReader(
     }
 
     override fun close() {
-        println("close")
+        println("CustomItemStreamReader close")
     }
 }

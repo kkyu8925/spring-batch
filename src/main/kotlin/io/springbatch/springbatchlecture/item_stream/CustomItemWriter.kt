@@ -7,15 +7,15 @@ import org.springframework.batch.item.ItemStreamWriter
 class CustomItemWriter : ItemStreamWriter<String> {
 
     override fun open(executionContext: ExecutionContext) {
-        println("")
+        println("CustomItemWriter open")
     }
 
     override fun update(executionContext: ExecutionContext) {
-        println("")
+        println("CustomItemWriter update")
     }
 
     override fun close() {
-        println("")
+        println("CustomItemWriter close")
     }
 
     override fun write(chunk: Chunk<out String>) {
