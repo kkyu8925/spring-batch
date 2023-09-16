@@ -1,58 +1,56 @@
-package io.springbatch.springbatchlecture.page.jpa
+package io.springbatch.springbatchlecture.adapter
 
-import jakarta.persistence.EntityManagerFactory
 import org.springframework.batch.core.Job
 import org.springframework.batch.core.Step
+import org.springframework.batch.core.configuration.annotation.JobScope
 import org.springframework.batch.core.job.builder.JobBuilder
-import org.springframework.batch.core.launch.support.RunIdIncrementer
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.item.ItemWriter
-import org.springframework.batch.item.database.JpaPagingItemReader
-import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder
+import org.springframework.batch.item.adapter.ItemReaderAdapter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
 
 //@Configuration
-class JpaPagingConfiguration(
+class ItemReaderAdapterConfiguration(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
-    private val entityManagerFactory: EntityManagerFactory,
 ) {
-
     @Bean
     fun job(): Job {
         return JobBuilder("batchJob", jobRepository)
-            .incrementer(RunIdIncrementer())
             .start(step1())
             .build()
     }
 
     @Bean
+    @JobScope
     fun step1(): Step {
         return StepBuilder("step1", jobRepository)
-            .chunk<Customer, Customer>(10, transactionManager)
+            .chunk<String, String>(10, transactionManager)
             .reader(customItemReader())
             .writer(customItemWriter())
             .build()
     }
 
     @Bean
-    fun customItemReader(): JpaPagingItemReader<Customer> {
-        return JpaPagingItemReaderBuilder<Customer>()
-            .name("jpaPagingItemReader")
-            .entityManagerFactory(entityManagerFactory)
-            .pageSize(10)
-            .queryString("select c from Customer c join fetch c.address")
-            .build()
+    fun customItemReader(): ItemReaderAdapter<String> {
+        val reader = ItemReaderAdapter<String>()
+        reader.setTargetObject(customService())
+        reader.setTargetMethod("joinCustomer")
+        return reader
+    }
+
+    private fun customService(): CustomService {
+        return CustomService()
     }
 
     @Bean
-    fun customItemWriter(): ItemWriter<Customer> {
+    fun customItemWriter(): ItemWriter<String> {
         return ItemWriter {
-            for (item in it) {
-                println(item.address.location)
+            it.items.forEach { item ->
+                println(item)
             }
         }
     }
