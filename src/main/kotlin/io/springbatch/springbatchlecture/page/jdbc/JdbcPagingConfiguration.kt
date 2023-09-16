@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
 import javax.sql.DataSource
 
-@Configuration
+//@Configuration
 class JdbcPagingConfiguration(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,

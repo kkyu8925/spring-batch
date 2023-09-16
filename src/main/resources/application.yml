@@ -8,6 +8,12 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
-#    job:
-#      name: ${job.name:NONE}
-#      enabled: false
+  #    job:
+  #      name: ${job.name:NONE}
+  #      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
