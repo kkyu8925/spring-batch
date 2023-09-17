@@ -2,7 +2,7 @@ package io.springbatch.springbatchlecture.page.jpa
 
 import jakarta.persistence.*
 
-@Entity
+//@Entity
 class Address(
 
     @Id

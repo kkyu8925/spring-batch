@@ -7,8 +7,10 @@ import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.launch.support.RunIdIncrementer
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
-import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.item.ItemProcessor
+import org.springframework.batch.item.database.JpaItemWriter
 import org.springframework.batch.item.database.JpaPagingItemReader
+import org.springframework.batch.item.database.builder.JpaItemWriterBuilder
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -32,8 +34,9 @@ class JpaPagingConfiguration(
     @Bean
     fun step1(): Step {
         return StepBuilder("step1", jobRepository)
-            .chunk<Customer, Customer>(10, transactionManager)
+            .chunk<Customer, Customer2>(10, transactionManager)
             .reader(customItemReader())
+            .processor(customItemProcess())
             .writer(customItemWriter())
             .build()
     }
@@ -44,16 +47,34 @@ class JpaPagingConfiguration(
             .name("jpaPagingItemReader")
             .entityManagerFactory(entityManagerFactory)
             .pageSize(10)
-            .queryString("select c from Customer c join fetch c.address")
+            .queryString("select c from Customer c")
+            .build()
+    }
+
+//    @Bean
+//    fun customItemWriter(): ItemWriter<Customer> {
+//        return ItemWriter {
+//            for (item in it) {
+//                println(item.address.location)
+//            }
+//        }
+//    }
+
+    @Bean
+    fun customItemWriter(): JpaItemWriter<Customer2> {
+        return JpaItemWriterBuilder<Customer2>()
+            .entityManagerFactory(entityManagerFactory)
             .build()
     }
 
     @Bean
-    fun customItemWriter(): ItemWriter<Customer> {
-        return ItemWriter {
-            for (item in it) {
-                println(item.address.location)
-            }
+    fun customItemProcess(): ItemProcessor<Customer, Customer2> {
+        return ItemProcessor<Customer, Customer2> {
+            Customer2(
+                id = it.id,
+                username = it.username,
+                age = it.age,
+            )
         }
     }
 }

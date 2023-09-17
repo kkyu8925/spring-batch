@@ -6,7 +6,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 
 @Entity
-class Customer(
+class Customer2(
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,7 +15,4 @@ class Customer(
     val username: String,
 
     val age: Int,
-
-//    @OneToOne(mappedBy = "customer")
-//    val address: Address
 )
