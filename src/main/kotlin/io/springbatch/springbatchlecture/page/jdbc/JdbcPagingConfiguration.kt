@@ -6,10 +6,11 @@ import org.springframework.batch.core.job.builder.JobBuilder
 import org.springframework.batch.core.launch.support.RunIdIncrementer
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.batch.core.step.builder.StepBuilder
-import org.springframework.batch.item.ItemWriter
+import org.springframework.batch.item.database.JdbcBatchItemWriter
 import org.springframework.batch.item.database.JdbcPagingItemReader
 import org.springframework.batch.item.database.Order
 import org.springframework.batch.item.database.PagingQueryProvider
+import org.springframework.batch.item.database.builder.JdbcBatchItemWriterBuilder
 import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuilder
 import org.springframework.batch.item.database.support.SqlPagingQueryProviderFactoryBean
 import org.springframework.context.annotation.Bean
@@ -79,12 +80,21 @@ class JdbcPagingConfiguration(
         return queryProvider.getObject()
     }
 
+//    @Bean
+//    fun customItemWriter(): ItemWriter<Customer> {
+//        return ItemWriter {
+//            for (item in it) {
+//                println(item)
+//            }
+//        }
+//    }
+
     @Bean
-    fun customItemWriter(): ItemWriter<Customer> {
-        return ItemWriter {
-            for (item in it) {
-                println(item)
-            }
-        }
+    fun customItemWriter(): JdbcBatchItemWriter<Customer> {
+        return JdbcBatchItemWriterBuilder<Customer>()
+            .dataSource(dataSource)
+            .sql("insert into customer2 values (:id, :firstName, :lastName, :birthdate)")
+            .beanMapped()
+            .build()
     }
 }
