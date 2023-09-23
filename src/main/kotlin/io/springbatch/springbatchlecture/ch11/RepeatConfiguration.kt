@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
 
-@Configuration
+//@Configuration
 class RepeatConfiguration(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
