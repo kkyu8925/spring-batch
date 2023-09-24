@@ -10,6 +10,8 @@ import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.support.ListItemReader
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.retry.RetryPolicy
+import org.springframework.retry.policy.SimpleRetryPolicy
 import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
@@ -40,8 +42,9 @@ class RetryConfiguration(
             .faultTolerant()
             .skip(RetryableException::class.java)
             .skipLimit(2)
-            .retry(RetryableException::class.java)
-            .retryLimit(2)
+//            .retry(RetryableException::class.java)
+//            .retryLimit(2)
+            .retryPolicy(retryPolicy())
             .build()
     }
 
@@ -67,24 +70,13 @@ class RetryConfiguration(
         }
     }
 
-//    @Bean
-//    fun writer(): ItemWriter<*> {
-//        return RetryItemWriter2()
-//    }
-//
-//    @Bean
-//    fun retryTemplate(): RetryTemplate {
-//        val exceptionClass: MutableMap<Class<out Throwable?>, Boolean> = HashMap()
-//        exceptionClass[RetryableException::class.java] = true
-//
-////        FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
-////        backOffPolicy.setBackOffPeriod(2000); //지정한 시간만큼 대기후 재시도 한다.
-//        val retryPolicy = SimpleRetryPolicy(2, exceptionClass)
-//        val retryTemplate = RetryTemplate()
-//        //        retryTemplate.setBackOffPolicy(backOffPolicy);
-//        retryTemplate.setRetryPolicy(retryPolicy)
-//        return retryTemplate
-//    }
+    @Bean
+    fun retryPolicy(): RetryPolicy {
+        val exceptionClass: MutableMap<Class<out Throwable>, Boolean> = HashMap()
+        exceptionClass[RetryableException::class.java] = true
+
+        return SimpleRetryPolicy(2, exceptionClass)
+    }
 }
 
 data class Customer(
