@@ -9,12 +9,11 @@ import org.springframework.batch.core.step.builder.StepBuilder
 import org.springframework.batch.item.ItemProcessor
 import org.springframework.batch.item.support.ListItemReader
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.retry.RetryPolicy
 import org.springframework.retry.policy.SimpleRetryPolicy
 import org.springframework.transaction.PlatformTransactionManager
 
-@Configuration
+//@Configuration
 class RetryConfiguration(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
@@ -31,7 +30,7 @@ class RetryConfiguration(
     @Bean
     fun step1(): Step {
         return StepBuilder("step1", jobRepository)
-            .chunk<String, Customer>(5, transactionManager)
+            .chunk<String, String>(5, transactionManager)
             .reader(reader())
             .processor(processor())
             .writer {
@@ -58,15 +57,15 @@ class RetryConfiguration(
     }
 
     @Bean
-    fun processor(): ItemProcessor<String, Customer> {
+    fun processor(): ItemProcessor<String, String> {
         var count = 0
 
-        return ItemProcessor<String, Customer> {
+        return ItemProcessor<String, String> {
             if (it == "2" || it == "3") {
                 count++
                 throw RetryableException("failed")
             }
-            Customer(it)
+            it
         }
     }
 
@@ -79,12 +78,4 @@ class RetryConfiguration(
     }
 }
 
-data class Customer(
-    val item: String
-)
-
-
-class RetryableException : java.lang.RuntimeException {
-    constructor() : super()
-    constructor(msg: String?) : super(msg)
-}
+class RetryableException(msg: String) : java.lang.RuntimeException(msg)
